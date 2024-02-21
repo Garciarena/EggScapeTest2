@@ -1,10 +1,16 @@
 using FishNet.Component.Animating;
+using FishNet.Connection;
 using FishNet.Object;
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class CustomMovement : NetworkBehaviour
 {
+    //NetworkData
+    private PlayerNetData _playerNetData;
+
     [SerializeField] private float speed;
     private float velocityY = 0;
     [SerializeField] private float rotSpeed;
@@ -22,11 +28,36 @@ public class CustomMovement : NetworkBehaviour
     //calculosRotacion
     [SerializeField] private Vector3 movementInput;
 
+    [SerializeField] private float cooldownPunch = 0.5f; //medio segundo de cooldown para golpear
+    private float lastPunch;
+
+    //UI
+    [SerializeField]
+    private TMPro.TextMeshProUGUI _textMeshPro;
 
     private void Awake()
     {
         _networkAnim = GetComponent<NetworkAnimator>();
+        _textMeshPro = GameObject.Find("txtHitpoints").GetComponent<TextMeshProUGUI>();
+        _playerNetData = GetComponent<PlayerNetData>();
+
+        _textMeshPro.text = _playerNetData.hitpoints.ToString();
+
     }
+
+    [ObserversRpc]
+    private void UpdateHitPoints()
+    {
+        if (!IsOwner) return;
+        _textMeshPro.text = _playerNetData.hitpoints.ToString();
+    }
+
+    [ServerRpc]
+    private void UpdateUI()
+    {
+        UpdateHitPoints();
+    }
+
     void Update()
     {
         if (!IsOwner) return; //Solo se mueve si es dueño de su client
@@ -54,7 +85,7 @@ public class CustomMovement : NetworkBehaviour
 
         // Calculate movement direction in world space
         Vector3 moveDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
-        
+
 
         // Rotate character to face movement direction
         if (moveDirection != Vector3.zero)
@@ -64,7 +95,7 @@ public class CustomMovement : NetworkBehaviour
             _characterController.Move(moveDirection * speed * Time.deltaTime);
         }
 
-        
+
 
 
     }
@@ -124,19 +155,21 @@ public class CustomMovement : NetworkBehaviour
     }
     void Punch1() //metodo para golpear
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        
+        if (Input.GetKeyDown(KeyCode.Q) && CanPunch())
         {
             //logica Animacion
-             Debug.Log($"{gameObject.name} Punch!");
+            Debug.Log($"{gameObject.name} Punch!");
             _anim.SetBool("isPunching", true);
 
-            //logica Raycast
-            Ray ray = new Ray(_fist1.position, transform.forward);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, _punchDistance, _punchLayerMask))
-            {
-                Debug.Log($"{hit.transform.gameObject.name} was hit");
-            }
+            ////logica Raycast
+            //Ray ray = new Ray(_fist1.position, transform.forward);
+            //RaycastHit hit;
+            //if (Physics.Raycast(ray, out hit, _punchDistance, _punchLayerMask))
+            //{
+            //    Debug.Log($"{hit.transform.gameObject.name} was hit");
+            //}
+            OnRaycast();
 
 
         }
@@ -151,7 +184,7 @@ public class CustomMovement : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             //logica Animacion
-              Debug.Log($"{gameObject.name} Punch2!");
+            Debug.Log($"{gameObject.name} Punch2!");
             _anim.SetBool("isPunching2", true);
 
             //logica Raycast
@@ -160,6 +193,7 @@ public class CustomMovement : NetworkBehaviour
             if (Physics.Raycast(ray, out hit, _punchDistance, _punchLayerMask))
             {
                 Debug.Log($"{hit.transform.gameObject.name} was hit");
+
             }
 
 
@@ -170,4 +204,63 @@ public class CustomMovement : NetworkBehaviour
         }
     }
 
+    [ServerRpc]
+    public void OnRaycast()
+    {
+
+        Ray ray = new Ray(_fist1.position, transform.forward);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, _punchDistance, _punchLayerMask))
+        {
+            Debug.Log($"{hit.transform.gameObject.name} was hit");
+            hit.transform.gameObject.GetComponent<CustomMovement>().TakeHit();
+
+            //RpcPlayerHit(hit.transform.gameObject.GetComponent<NetworkObject>().LocalConnection);
+            // RpcTargetAllClients.InvokeRpc("OnPlayerHit", hit.collider.gameObject.GetComponent<NetworkIdentity>().netId);
+        }
+
+        //// Se ejecuta en el servidor
+        //// Realizar un Raycast y obtener información sobre la colisión
+        //RaycastHit hit;
+        //if (Physics.Raycast(transform.position, transform.forward, out hit, 10))
+        //{
+        //    // Si se produce una colisión, comprobar si el objeto es un jugador
+        //    if (hit.collider.gameObject.GetComponent<PlayerNetData>() != null)
+        //    {
+        //        // Invocar método para calcular la colisión
+        //        RpcTargetAllClients.InvokeRpc("OnPlayerCollision", hit.collider.gameObject.GetComponent<NetworkIdentity>().netId);
+        //    }
+        //}
+
+
+    }
+
+    private void TakeHit()
+    {
+        Debug.Log(gameObject.name + "was Hit! in TakeHit");
+        Debug.Log(GetComponent<PlayerNetData>().hitpoints);
+        _playerNetData.hitpoints = _playerNetData.hitpoints - 1;
+        UpdateHitPoints();
+    }
+
+    private bool CanPunch() 
+    {
+        if(Time.realtimeSinceStartup > lastPunch + cooldownPunch) 
+        {
+            lastPunch= Time.realtimeSinceStartup;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    [TargetRpc]
+    public void RpcPlayerHit(NetworkConnection connection)
+    {
+        // Se ejecuta en todos los clientes cuando el Raycast del servidor colisiona con un jugador
+        // Recibir la ID del jugador y mostrar un mensaje
+        Debug.Log("Hit en el jugador " + connection.ClientId);
+    }
 }

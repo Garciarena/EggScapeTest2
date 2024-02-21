@@ -7,6 +7,7 @@ public class PlayerNetData : NetworkBehaviour
     [SyncVar] public string userName;
     [SyncVar] public bool isReady;
     [SyncVar] public int hitpoints;
+    [SyncVar] public int customId;
 
     
     public override void OnStartServer()

@@ -122,6 +122,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   movementInput: {x: 0, y: 0, z: 0}
+  cooldownPunch: 0.5
 --- !u!136 &5246924475680967173
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -288,9 +289,10 @@ MonoBehaviour:
   _componentIndexCache: 2
   _addedNetworkObject: {fileID: 7589270683788831287}
   _networkObjectCache: {fileID: 7589270683788831287}
-  userName: 
+  userName: unknwon player
   isReady: 0
-  hitpoints: 0
+  hitpoints: 3
+  customId: 0
 --- !u!114 &2843317342492446609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -324,7 +326,7 @@ GameObject:
   - component: {fileID: 4011010895090500849}
   - component: {fileID: 7991006822990868311}
   - component: {fileID: 8254877682612688360}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: _Lens
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -429,7 +431,7 @@ GameObject:
   - component: {fileID: 2150774755441158180}
   - component: {fileID: 8860690047745526941}
   - component: {fileID: 6704596866560205662}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: _Fist
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -535,7 +537,7 @@ GameObject:
   - component: {fileID: 157259528011501514}
   - component: {fileID: 1791409277148861206}
   - component: {fileID: 8971368097121035781}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: _Fist2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -638,7 +640,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9124127470376416714}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: RaycastEmiter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -669,7 +671,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7691076671070988775}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: RaycastEmiter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
