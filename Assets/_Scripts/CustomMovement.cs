@@ -1,14 +1,47 @@
 using FishNet.Component.Animating;
 using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Object.Prediction;
+using FishNet.Transporting;
 using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+public struct MoveData : IReplicateData
+{
+    public Vector3 Direction;
+
+    /* Everything below this is required for
+    * the interface. You do not need to implement
+    * Dispose, it is there if you want to clean up anything
+    * that may allocate when this structure is discarded. */
+    private uint _tick;
+    public void Dispose() { }
+    public uint GetTick() => _tick;
+    public void SetTick(uint value) => _tick = value;
+}
+
+public struct ReconcileData : IReconcileData
+{
+    public Vector3 Position;
+
+    /* Everything below this is required for
+    
+    the interface. You do not need to implement
+    Dispose, it is there if you want to clean up anything
+    that may allocate when this structure is discarded. */
+    private uint _tick;
+    public void Dispose() { }
+    public uint GetTick() => _tick;
+    public void SetTick(uint value) => _tick = value;
+}
+
 public class CustomMovement : NetworkBehaviour
 {
     //NetworkData
+    public Vector3 newDirection;
+
     private PlayerNetData _playerNetData;
 
     [SerializeField] private float speed;
@@ -83,46 +116,50 @@ public class CustomMovement : NetworkBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
+
+           newDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
+
+
         // Calculate movement direction in world space
-        Vector3 moveDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
+        //Vector3 moveDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
 
 
-        // Rotate character to face movement direction
-        if (moveDirection != Vector3.zero)
-        {
-            transform.rotation = Quaternion.LookRotation(moveDirection);
-            // Move the character
-            _characterController.Move(moveDirection * speed * Time.deltaTime);
-        }
+        //// Rotate character to face movement direction
+        //if (moveDirection != Vector3.zero)
+        //{
+        //    transform.rotation = Quaternion.LookRotation(moveDirection);
+        //    // Move the character
+        //    _characterController.Move(moveDirection * speed * Time.deltaTime);
+        //}
 
 
 
 
     }
 
-    void Move()
-    {
-        movementInput = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        Vector3 Direction = movementInput.normalized;
+    //void Move()
+    //{
+    //    movementInput = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+    //    Vector3 Direction = movementInput.normalized;
 
 
 
-        bool groundedPlayer = _characterController.isGrounded;
-        if (groundedPlayer && velocityY < 0)
-        {
-            velocityY = 0f;
-        }
+    //    bool groundedPlayer = _characterController.isGrounded;
+    //    if (groundedPlayer && velocityY < 0)
+    //    {
+    //        velocityY = 0f;
+    //    }
 
-        transform.Rotate(transform.up, movementInput.x * rotSpeed * Time.deltaTime);
-        _characterController.Move(movementInput.z * transform.forward * speed * Time.deltaTime);
-
-
+    //    transform.Rotate(transform.up, movementInput.x * rotSpeed * Time.deltaTime);
+    //    _characterController.Move(movementInput.z * transform.forward * speed * Time.deltaTime);
 
 
-        //gravedad
-        velocityY += gravityValue * Time.deltaTime;
-        _characterController.Move(new Vector3(0, velocityY, 0) * Time.deltaTime);
-    }
+
+
+    //    //gravedad
+    //    velocityY += gravityValue * Time.deltaTime;
+    //    _characterController.Move(new Vector3(0, velocityY, 0) * Time.deltaTime);
+    //}
 
     void HandleAnimation()
     {
@@ -263,4 +300,74 @@ public class CustomMovement : NetworkBehaviour
         // Recibir la ID del jugador y mostrar un mensaje
         Debug.Log("Hit en el jugador " + connection.ClientId);
     }
+
+    //NetworkTickMethods
+
+    
+    public override void OnStartNetwork()
+    {
+        base.OnStartNetwork();
+        base.TimeManager.OnTick += TimeManager_OnTick;
+    }
+
+    public override void OnStopNetwork()
+    {
+        base.OnStopNetwork();
+        if (base.TimeManager != null)
+            base.TimeManager.OnTick -= TimeManager_OnTick;
+    }
+
+    private void TimeManager_OnTick()
+    {
+        if (base.IsOwner)
+        {
+            BuildActions(out MoveData md);
+            Move(md, false);
+        }
+
+        //if (base.IsServer)
+        //{
+        //    Move(default, true);
+        //    ReconcileData rd = new ReconcileData()
+        //    {
+        //        Position = transform.position
+        //    };
+        //    Reconcile(rd, true);
+        //}
+    }
+
+    private void BuildActions(out MoveData moveData)
+    {
+        moveData = default;
+        moveData.Direction = newDirection;
+        //Unset queued values.
+        newDirection = Vector3.zero;
+    }
+
+    //replicate // Reconcile
+
+    [Replicate]
+    private void Move(MoveData moveData, bool asServer, Channel channel = Channel.Unreliable, bool replaying = false)
+    {
+
+       // Calculate movement direction in world space
+
+
+        // Rotate character to face movement direction
+        if (moveData.Direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(moveData.Direction);
+            // Move the character
+            _characterController.Move(moveData.Direction * speed ); //time.deltatime
+        }
+    }
+
+    [Reconcile]
+    private void Reconcile(ReconcileData recData, bool asServer, Channel channel = Channel.Unreliable)
+    {
+        //Reset the client to the received position. It's okay to do this
+        //even if there is no de-synchronization.
+        transform.position = recData.Position;
+    }
+
 }
