@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 6499748529701515167}
   - component: {fileID: 6530042448875696345}
   - component: {fileID: 1116791558102644725}
+  - component: {fileID: 2843317342492446609}
   m_Layer: 3
   m_Name: _EggPlayerTest
   m_TagString: Untagged
@@ -112,6 +113,7 @@ MonoBehaviour:
   rotSpeed: 1
   gravityValue: -9.81
   _anim: {fileID: 6499748529701515167}
+  _networkAnim: {fileID: 0}
   _characterController: {fileID: 6530042448875696345}
   _fist1: {fileID: 9124127470376416714}
   _fist2: {fileID: 7691076671070988775}
@@ -162,6 +164,7 @@ MonoBehaviour:
   - {fileID: 1809757236504485483}
   - {fileID: 3792847699196407695}
   - {fileID: 1116791558102644725}
+  - {fileID: 2843317342492446609}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
   SerializedTransformProperties:
@@ -288,6 +291,27 @@ MonoBehaviour:
   userName: 
   isReady: 0
   hitpoints: 0
+--- !u!114 &2843317342492446609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3213673990053409375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8cac635f24954048aad3a6ff9110beb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 3
+  _addedNetworkObject: {fileID: 7589270683788831287}
+  _networkObjectCache: {fileID: 7589270683788831287}
+  IgnoredParameters: []
+  _animator: {fileID: 6499748529701515167}
+  _smoothFloats: 1
+  _interpolation: 1
+  _clientAuthoritative: 1
+  _sendToOwner: 0
 --- !u!1 &5094438329914948326
 GameObject:
   m_ObjectHideFlags: 0

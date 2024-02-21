@@ -1,3 +1,4 @@
+using FishNet.Component.Animating;
 using FishNet.Object;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,6 +10,7 @@ public class CustomMovement : NetworkBehaviour
     [SerializeField] private float rotSpeed;
     [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private Animator _anim;
+    [SerializeField] private NetworkAnimator _networkAnim;
     [SerializeField] private CharacterController _characterController;
 
     [SerializeField] private Transform _fist1; //RayCastEmiters
@@ -20,6 +22,11 @@ public class CustomMovement : NetworkBehaviour
     //calculosRotacion
     [SerializeField] private Vector3 movementInput;
 
+
+    private void Awake()
+    {
+        _networkAnim = GetComponent<NetworkAnimator>();
+    }
     void Update()
     {
         if (!IsOwner) return; //Solo se mueve si es dueño de su client
