@@ -66,15 +66,19 @@ public class CustomMovement : NetworkBehaviour
 
     //UI
     [SerializeField]
-    private TMPro.TextMeshProUGUI _textMeshPro;
+    private TMPro.TextMeshProUGUI _hitpointsUI;
+    [SerializeField]
+    private TMPro.TextMeshPro _nameUI;
 
     private void Awake()
     {
         _networkAnim = GetComponent<NetworkAnimator>();
-        _textMeshPro = GameObject.Find("txtHitpoints").GetComponent<TextMeshProUGUI>();
+        _hitpointsUI = GameObject.Find("txtHitpoints").GetComponent<TextMeshProUGUI>();
         _playerNetData = GetComponent<PlayerNetData>();
 
-        _textMeshPro.text = _playerNetData.hitpoints.ToString();
+        _hitpointsUI.text = _playerNetData.hitpoints.ToString();
+
+        _nameUI.text = LobbyPlayerData.Instance._playerName;
 
     }
 
@@ -82,13 +86,28 @@ public class CustomMovement : NetworkBehaviour
     private void UpdateHitPoints()
     {
         if (!IsOwner) return;
-        _textMeshPro.text = _playerNetData.hitpoints.ToString();
+        _hitpointsUI.text = _playerNetData.hitpoints.ToString();
+
+        
     }
+
+    [ObserversRpc]
+    public void UpdateNameUI()
+    {
+        Debug.Log("UpdateNameUI");
+        if (!IsOwner) return;
+        Debug.Log("UpdateNameUI is owner");
+        _nameUI.text = _playerNetData.userName;
+
+
+    }
+
 
     [ServerRpc]
     private void UpdateUI()
     {
         UpdateHitPoints();
+        UpdateNameUI();
     }
 
     void Update()

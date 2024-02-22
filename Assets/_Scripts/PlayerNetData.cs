@@ -15,6 +15,7 @@ public class PlayerNetData : NetworkBehaviour
         base.OnStartServer();
         GameManager.Instance._players.Add(this);
         GameManager.Instance.UpdateCameraGroup(this, true);
+        UpdateUserName();
     }
 
     public override void OnStartClient()
@@ -23,6 +24,7 @@ public class PlayerNetData : NetworkBehaviour
         base.OnStartClient();
         GameManager.Instance._players.Add(this);
         GameManager.Instance.UpdateCameraGroup(this, true);
+        UpdateUserName();
     }
 
 
@@ -40,8 +42,9 @@ public class PlayerNetData : NetworkBehaviour
         GameManager.Instance.UpdateCameraGroup(this, false);
     }
 
-    public void Update()
+    public void UpdateUserName()
     {
+        userName = LobbyPlayerData.Instance._playerName;
 
     }
 
