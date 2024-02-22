@@ -3,7 +3,8 @@
 ## Instrucciones
 Usa *WASD* para moverte y *Q* para Atacar. si tu ataque impacta en el cuerpo de tu enemigo conseguiras hacer 1 de daño.
 
-![Uploading Captura.JPG…]()
+![Captura](https://github.com/Garciarena/EggScapeTest2/assets/57597733/63d0e969-b65c-465d-aa80-01cb2e4da5bf)
+
 
 Como se puede ver en la imagen, todavia no corregi el SynVar de el nombre de los personajes
 Por otro lado, hay que tener en cuenta de que los personajes si se pueden detectar, pero el raycast tiene que colisionar con el prefab correcto.
