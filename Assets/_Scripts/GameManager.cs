@@ -41,8 +41,8 @@ public class GameManager : NetworkBehaviour
     {
         if (!IsServer) return;
         canStart = _players.All(_players => _players.isReady);
-       // Debug.Log($"Can Start = {canStart}");
-        Debug.Log(_players.Count);
+     
+        Debug.Log(_players.Count); //para contar los jugadores que entran
     }
 
 }
